@@ -5,6 +5,12 @@ import Effect.Random
 Board : Type
 Board = List (Int, Int, Int)
 
+lookup : Board -> (Int, Int) -> Int
+lookup [] x = 0
+lookup ((x, y, val) :: xs) (a, b) = if (x == a && y == b)
+                                      then val
+                                      else lookup xs (a, b)
+
 data GState = Running Bool | NotRunning
 
 data G2048 : GState -> Type where
@@ -35,12 +41,6 @@ instance Show (G2048 gs) where
                                                 then ". " ++ (makeBoard (x + 1) y b)
                                                 else show (lookup b (x, y)) ++ " " ++ (makeBoard (x + 1) y b)
                                         else "\n"
-
-lookup : Board -> (Int, Int) -> Int
-lookup [] x = 0
-lookup ((x, y, val) :: xs) (a, b) = if (x == a && y == b)
-                                      then val
-                                      else lookup xs (a, b)
                                       
 edit : Board -> (Int, Int) -> Int -> (Int, Int, Int)
 edit [] x y = (0, 0, 0)
