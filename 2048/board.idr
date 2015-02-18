@@ -10,6 +10,28 @@ lookup [] x = 0
 lookup ((x, y, val) :: xs) (a, b) = if (x == a && y == b)
                                       then val
                                       else lookup xs (a, b)
+                                      
+getHighest : Board -> Int
+getHighest [] = 0
+getHighest b = nextHighest b 0 where
+    nextHighest : Board -> Int -> Int
+    nextHighest [] a = a
+    nextHighest ((x, y, z) :: xs) a = if (z > a)
+                                         then nextHighest xs z
+                                         else nextHighest xs a
+
+getScore : Board -> Nat
+getScore [] = 0
+getScore b = 0
+
+getSpaces : Board -> Nat
+getSpaces [] = 16
+getSpaces b = 16 - length b
+
+getPairs : Board -> Nat
+getPairs [] = 0
+getPairs b = 0
+
 
 data GState = Running Bool | NotRunning
 
@@ -18,7 +40,7 @@ data G2048 : GState -> Type where
       GameWon : String -> G2048 NotRunning
       GameLost : String -> G2048 NotRunning
       Mk2048 : (gboard : Board) ->
-               (highest : Nat) ->
+               (highest : Int) ->
                (score : Nat) ->
                (spaces : Nat) ->
                G2048 (Running False)
@@ -41,6 +63,11 @@ instance Show (G2048 gs) where
                                                 then ". " ++ (makeBoard (x + 1) y b)
                                                 else show (lookup b (x, y)) ++ " " ++ (makeBoard (x + 1) y b)
                                         else "\n"
+                                        
+                                        
+initState : (b : Board) -> G2048 (Running False (getPairs b))
+initState b = Mk2048 b (getHighest b) (getScore b) (getSpaces b)
+
                                       
 edit : Board -> (Int, Int) -> Int -> (Int, Int, Int)
 edit [] x y = (0, 0, 0)
