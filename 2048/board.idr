@@ -32,10 +32,6 @@ getHighest b = nextHighest b 0 where
                                          then nextHighest xs z
                                          else nextHighest xs a
 
-getScore : Board -> Nat
-getScore [] = 0
-getScore b = 0
-
 getSpaces : Board -> Nat
 getSpaces [] = 16
 getSpaces b = 16 - length b
@@ -91,7 +87,7 @@ instance Show (G2048 gs) where
                                         
                                         
 initState : (b : Board) -> G2048 (Running False (getPairs b))
-initState b = Mk2048 b (getHighest b) (getScore b) (getSpaces b)
+initState b = Mk2048 b (getHighest b) 0 (getSpaces b)
 
                                       
 edit : Board -> (Int, Int) -> Int -> (Int, Int, Int)
