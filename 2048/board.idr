@@ -58,8 +58,8 @@ data GState = Running Bool Nat Int | NotRunning
 
 data G2048 : GState -> Type where
       Init : G2048 NotRunning -- initialising, but not ready
-      GameWon : String -> G2048 NotRunning
-      GameLost : String -> G2048 NotRunning
+      GameWon : Nat -> G2048 NotRunning
+      GameLost : Nat -> G2048 NotRunning
       Mk2048 : (gboard : Board) ->
                (highest : Int) ->
                (score : Nat) ->
@@ -71,8 +71,8 @@ instance Default (G2048 NotRunning) where
 
 instance Show (G2048 gs) where 
   show Init = "Setting up"
-  show (GameWon s) = "You won with a score of " ++ s
-  show (GameLost s) = "You lost with a score of " ++ s
+  show (GameWon s) = "You won with a score of " ++ show s
+  show (GameLost s) = "You lost with a score of " ++ show s
   show (Mk2048 gboard highest s spaces) = showBoard gboard
      where showBoard : Board -> String
            showBoard [] = ""
@@ -188,3 +188,10 @@ newBoard b = call (NewBoard b)
 
 get : { [GAME2048 g] } Eff (G2048 g)
 get = call Get
+
+instance Handler G2048Rules m where
+  handle (Mk2048 b 2048 sc sp) Won k = k () (GameWon sc)
+  {- handle (Mk2048 b h sc 0) Lost k = k () (GameLost sc) -}
+  handle st Get k = k st st
+  handle st (NewBoard b) k = k () (initState b)
+
