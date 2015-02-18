@@ -176,3 +176,15 @@ data G2048Rules : Effect where
 
 GAME2048 : GState -> EFFECT
 GAME2048 g = MkEff (G2048 g) G2048Rules
+
+won : { [GAME2048 (Running tf p 2048)] ==> [GAME2048 NotRunning]} Eff ()
+won = call Won
+
+lost : { [GAME2048 (Running True 0 h)] ==> [GAME2048 NotRunning]} Eff ()
+lost = call Lost
+
+newBoard : (b : Board) -> { [GAME2048 g] ==> [GAME2048 (Running False (getPairs b) (getHighest b))] } Eff ()
+newBoard b = call (NewBoard b)
+
+get : { [GAME2048 g] } Eff (G2048 g)
+get = call Get
