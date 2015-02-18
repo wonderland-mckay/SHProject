@@ -54,7 +54,7 @@ getPairs b = (colPairs (getCol 0 b)) + (colPairs (getCol 1 b)) + (colPairs (getC
 
 
 
-data GState = Running Bool | NotRunning
+data GState = Running Bool Nat Int | NotRunning
 
 data G2048 : GState -> Type where
       Init : G2048 NotRunning -- initialising, but not ready
@@ -64,7 +64,7 @@ data G2048 : GState -> Type where
                (highest : Int) ->
                (score : Nat) ->
                (spaces : Nat) ->
-               G2048 (Running False)
+               G2048 (Running False p highest)
 
 instance Default (G2048 NotRunning) where 
   default = Init
@@ -86,7 +86,7 @@ instance Show (G2048 gs) where
                                         else "\n"
                                         
                                         
-initState : (b : Board) -> G2048 (Running False (getPairs b))
+initState : (b : Board) -> G2048 (Running False (getPairs b) (getHighest b))
 initState b = Mk2048 b (getHighest b) 0 (getSpaces b)
 
                                       
@@ -166,3 +166,13 @@ shiftDown b = (downShift 0 b) ++ (downShift 1 b) ++ (downShift 2 b) ++ (downShif
   downShift : Int -> Board -> Board
   downShift x b = reverse (putCol x False (shift (reverse (getCol x b))) b)
 
+
+data G2048Rules : Effect where
+  Won : { G2048 (Running tf p 2048) ==> G2048 NotRunning } G2048Rules()
+  Lost : { G2048 (Running True 0 h) ==> G2048 NotRunning } G2048Rules()
+  NewBoard : (b : Board) -> { g ==> G2048 (Running False (getPairs b) (getHighest b)) } G2048Rules()
+  Get : { g } G2048Rules g
+
+
+GAME2048 : GState -> EFFECT
+GAME2048 g = MkEff (G2048 g) G2048Rules
