@@ -11,6 +11,18 @@ lookup ((x, y, val) :: xs) (a, b) = if (x == a && y == b)
                                       then val
                                       else lookup xs (a, b)
                                       
+getRow : Int -> Board -> List Int
+getRow x [] = []
+getRow x ((a, b, c) :: xs) = if (x == b)
+                               then c :: getRow x xs
+                               else getRow x xs
+
+getCol : Int -> Board -> List Int
+getCol x [] = []
+getCol x ((a, b, c) :: xs) = if (x == a)
+                                then c :: getCol x xs
+                                else getCol x xs
+                                      
 getHighest : Board -> Int
 getHighest [] = 0
 getHighest b = nextHighest b 0 where
@@ -30,7 +42,20 @@ getSpaces b = 16 - length b
 
 getPairs : Board -> Nat
 getPairs [] = 0
-getPairs b = 0
+getPairs b = (colPairs (getCol 0 b)) + (colPairs (getCol 1 b)) + (colPairs (getCol 2 b)) + (colPairs (getCol 3 b)) + (rowPairs (getRow 0 b)) + (rowPairs (getRow 1 b)) + (rowPairs (getRow 2 b)) + (rowPairs (getRow 3 b)) where
+  colPairs : List Int -> Nat
+  colPairs [] = 0
+  colPairs [x] = 0
+  colPairs (x :: y :: xs) = if (x == y)
+                               then 1 + colPairs (y :: xs)
+                               else colPairs (y :: xs)
+  rowPairs : List Int -> Nat
+  rowPairs [] = 0
+  rowPairs [x] = 0
+  rowPairs (x :: y :: xs) = if (x == y)
+                               then 1 + rowPairs (y :: xs)
+                               else rowPairs (y :: xs)
+
 
 
 data GState = Running Bool | NotRunning
@@ -76,17 +101,6 @@ edit ((x, y, val) :: xs) (a, b) c = if (x == a && y == b)
                                        else edit xs (a, b) c
 
 
-getRow : Int -> Board -> List Int
-getRow x [] = []
-getRow x ((a, b, c) :: xs) = if (x == b)
-                               then c :: getRow x xs
-                               else getRow x xs
-
-getCol : Int -> Board -> List Int
-getCol x [] = []
-getCol x ((a, b, c) :: xs) = if (x == a)
-                                then c :: getCol x xs
-                                else getCol x xs
 
 putRow : Int -> Bool -> List Int -> Board -> Board
 putRow x tf [] [] = []
